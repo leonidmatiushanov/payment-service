@@ -24,3 +24,7 @@ jobs:
       # Шаг 4: Запуск тестов отдельно
       - name: Run tests
         run: mvn -B test
+      # Шаг 5: Запуск checkstyle <- новый
+      - name: Run Checkstyle for payment-service-app
+        working-directory: ./payment-service-app
+        run: mvn -B checkstyle:check
