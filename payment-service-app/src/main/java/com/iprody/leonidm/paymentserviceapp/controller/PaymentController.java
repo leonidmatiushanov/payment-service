@@ -29,7 +29,7 @@ public class PaymentController {
     }
 
     @GetMapping("/{id}")
-    public Payment getPayment(@PathVariable longa id) {
+    public Payment getPayment(@PathVariable long id) {
         Payment payment = PAYMENTS.get(id);
         if (payment == null) {
             // чтобы не отправлять null и 200 статус, выкидываю 500 ошибку, знаю что нужно 404, но
