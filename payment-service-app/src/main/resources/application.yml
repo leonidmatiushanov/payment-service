@@ -1,6 +1,19 @@
 spring:
   application:
     name: payment-service-app
+  datasource: # объединяет в себе параметры подключения к БД
+    url: jdbc:postgresql://localhost:5432/payment-db # URL подключения к БД
+    username: admin # Имя пользователя
+    password: secret # Пароль
+    driver-class-name: org.postgresql.Driver # класс jdbc драйвера
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true # Показывать SQL-запросы в консоли
+    properties:
+      hibernate:
+          format_sql: true # Форматировать SQL для читаемости
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   port: 8080
