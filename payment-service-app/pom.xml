@@ -29,6 +29,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-liquibase</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.7.6</version>
@@ -93,9 +98,18 @@
 				</executions>
 				<configuration>
 					<configLocation>../checkstyle.xml</configLocation>
-					<encoding>UTF-8</encoding>
+<!--					<encoding>UTF-8</encoding>-->
 					<consoleOutput>true</consoleOutput>
 					<failOnViolation>true</failOnViolation>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<version>4.32.0</version>
+				<configuration>
+					<propertyFile>src/main/resources/liquibase.properties</propertyFile>
 				</configuration>
 			</plugin>
 		</plugins>
