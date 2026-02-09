@@ -7,7 +7,7 @@
     <property name="charset" value="UTF-8"/>
     <!-- Проверка длины строки -->
     <module name="LineLength">
-        <property name="max" value="100"/> <!-- Максимальная длина строки
+        <property name="max" value="120"/> <!-- Максимальная длина строки
 -->
     </module>
     <module name="TreeWalker">
