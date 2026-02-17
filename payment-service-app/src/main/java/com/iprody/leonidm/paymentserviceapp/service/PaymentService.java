@@ -20,31 +20,32 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PaymentService {
     private final PaymentRepository repository;
+    private final PaymentMapper paymentMapper;
 
     public List<PaymentDto> findAll() {
         final List<Payment> payments = repository.findAll();
         return payments.stream()
-                .map(PaymentMapper::toModel)
+                .map(paymentMapper::toDto)
                 .toList();
     }
 
     public PaymentDto findById(UUID guid) {
         final Payment payment = repository.findById(guid).orElseThrow();
-        return PaymentMapper.toModel(payment);
+        return paymentMapper.toDto(payment);
     }
 
     public List<PaymentDto> findByFilter(PaymentFilter filter) {
         final Specification<Payment> paymentSpecification = PaymentFilterFactory.fromFilter(filter);
         final List<Payment> payments = repository.findAll(paymentSpecification);
         return payments.stream()
-                .map(PaymentMapper::toModel)
+                .map(paymentMapper::toDto)
                 .toList();
     }
 
     public Page<PaymentDto> findPaged(PaymentFilter filter, Pageable pageable) {
         final Specification<Payment> spec = PaymentFilterFactory.fromFilter(filter);
         final Page<Payment> payments = repository.findAll(spec, pageable);
-        final List<PaymentDto> dtos = PaymentMapper.toModel(payments.getContent());
+        final List<PaymentDto> dtos = paymentMapper.toDto(payments.getContent());
         return new PageImpl<>(dtos, pageable, payments.getTotalElements());
     }
 }
