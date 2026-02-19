@@ -10,6 +10,10 @@ public final class PaymentFilterFactory {
     public static Specification<Payment> fromFilter(PaymentFilter filter) {
         Specification<Payment> spec = Specification.unrestricted();
 
+        if (filter == null) {
+            return spec;
+        }
+
         if (StringUtils.hasText(filter.currency())) {
             spec = spec.and(PaymentSpecifications.hasCurrency(filter.currency()));
         }
