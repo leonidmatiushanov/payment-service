@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.2-change-type-column-payment
+      author: student
+      comment: "Change type column payments.created_at and payments.updated_at to timestamp"
+      changes:
+        - modifyDataType:
+            columnName: created_at
+            newDataType: timestamp
+            tableName: payments
+        - modifyDataType:
+            columnName: updated_at
+            newDataType: timestamp
+            tableName: payments

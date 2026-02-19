@@ -27,3 +27,13 @@ databaseChangeLog:
       changes:
         - tagDatabase:
             tag: v1.1
+
+  - include:
+      file: v1.2/db.changelog-1.2-change-column-payment.yaml
+      relativeToChangelogFile: true
+  - changeSet:
+      id: tag-1.2
+      author: student
+      changes:
+        - tagDatabase:
+            tag: v1.2

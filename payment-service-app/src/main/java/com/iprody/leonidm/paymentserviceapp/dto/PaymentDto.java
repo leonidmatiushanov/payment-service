@@ -7,7 +7,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record PaymentDto(
-    UUID uuid,
+    UUID guid,
     BigDecimal amount,
     String currency,
     PaymentStatus status,
