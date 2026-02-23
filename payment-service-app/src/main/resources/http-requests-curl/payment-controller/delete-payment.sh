@@ -1,0 +1,1 @@
+curl -X DELETE http://localhost:8080/payments/6d686ccc-c08e-4a02-969d-7ff3866d43cb

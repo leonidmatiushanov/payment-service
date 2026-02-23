@@ -6,11 +6,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
-public record PaymentDto(
-    UUID guid,
+public record RequestUpdatePaymentDto(
     BigDecimal amount,
     String currency,
+    UUID inquiryRefId,
     PaymentStatus status,
     String note,
-    Instant createdAt) {
+    Instant createdAt
+) {
 }

@@ -1,7 +1,7 @@
 package com.iprody.leonidm.paymentserviceapp.service;
 
-import com.iprody.leonidm.paymentserviceapp.dto.PaymentDto;
-import com.iprody.leonidm.paymentserviceapp.dto.PaymentFilter;
+import com.iprody.leonidm.paymentserviceapp.dto.*;
+import com.iprody.leonidm.paymentserviceapp.exception.EntityNotFoundException;
 import com.iprody.leonidm.paymentserviceapp.mapper.PaymentMapper;
 import com.iprody.leonidm.paymentserviceapp.persistence.entity.Payment;
 import com.iprody.leonidm.paymentserviceapp.persistence.entity.PaymentStatus;
@@ -25,10 +25,11 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
@@ -40,7 +41,7 @@ public class PaymentServiceTest {
     @InjectMocks
     private PaymentService paymentService;
 
-    private Instant startDate = Instant.parse("2020-01-01T10:00:00.00Z");
+    private final Instant startDate = Instant.parse("2020-01-01T10:00:00.00Z");
     private Payment payment;
     private PaymentDto paymentDto;
     private UUID guid;
@@ -62,6 +63,7 @@ public class PaymentServiceTest {
                 payment.getAmount(),
                 payment.getCurrency(),
                 payment.getStatus(),
+                payment.getNote(),
                 payment.getCreatedAt());
     }
 
@@ -208,7 +210,12 @@ public class PaymentServiceTest {
     void shouldMapDifferentPaymentStatuses(PaymentStatus status) {
         //given
         payment.setStatus(status);
-        paymentDto = new PaymentDto(paymentDto.guid(), paymentDto.amount(), paymentDto.currency(), status, paymentDto.createdAt());
+        paymentDto = new PaymentDto(paymentDto.guid(),
+                paymentDto.amount(),
+                paymentDto.currency(),
+                status,
+                paymentDto.note(),
+                paymentDto.createdAt());
 
         when(paymentRepository.findById(guid)).thenReturn(Optional.of(payment));
         when(paymentMapper.toDto(payment)).thenReturn(paymentDto);
@@ -220,6 +227,122 @@ public class PaymentServiceTest {
         assertEquals(status, result.status());
         verify(paymentRepository).findById(guid);
         verify(paymentMapper).toDto(payment);
+    }
+
+    @Test
+    void shouldSuccess_createPayment() {
+        //given
+        RequestCreatePaymentDto requestCreatePaymentDto = new RequestCreatePaymentDto(payment.getAmount(), payment.getInquiryRefId(), payment.getCurrency(), payment.getStatus());
+        when(paymentRepository.save(payment)).thenReturn(payment);
+        when(paymentMapper.toEntity(any(RequestCreatePaymentDto.class))).thenReturn(payment);
+        when(paymentMapper.toDto(any(Payment.class))).thenReturn(paymentDto);
+
+        //when
+        PaymentDto result = paymentService.createPayment(requestCreatePaymentDto);
+
+        //then
+        assertEquals(guid, result.guid());
+        assertEquals("USD", result.currency());
+        assertEquals(PaymentStatus.APPROVED, result.status());
+        verify(paymentRepository).save(payment);
+        verify(paymentMapper).toEntity(any(RequestCreatePaymentDto.class));
+        verify(paymentMapper).toDto(payment);
+    }
+
+    @Test
+    void shouldSuccess_updatePayment() {
+        //given
+        RequestUpdatePaymentDto requestUpdatePaymentDto = new RequestUpdatePaymentDto(payment.getAmount(),
+                payment.getCurrency(), payment.getInquiryRefId(), payment.getStatus(), payment.getNote(), payment.getCreatedAt());
+        when(paymentRepository.save(payment)).thenReturn(payment);
+        when(paymentMapper.toEntity(any(RequestUpdatePaymentDto.class))).thenReturn(payment);
+        when(paymentMapper.toDto(any(Payment.class))).thenReturn(paymentDto);
+        when(paymentRepository.existsById(guid)).thenReturn(Boolean.TRUE);
+
+        //when
+        PaymentDto result = paymentService.updatePayment(guid, requestUpdatePaymentDto);
+
+        //then
+        assertEquals(guid, result.guid());
+        assertEquals("USD", result.currency());
+        assertEquals(PaymentStatus.APPROVED, result.status());
+
+        verify(paymentRepository).existsById(guid);
+        verify(paymentRepository).save(payment);
+        verify(paymentMapper).toEntity(any(RequestUpdatePaymentDto.class));
+        verify(paymentMapper).toDto(payment);
+    }
+
+    @Test
+    void shouldNotFoundEntityException_updatePayment() {
+        //given
+        RequestUpdatePaymentDto requestUpdatePaymentDto = new RequestUpdatePaymentDto(payment.getAmount(),
+                payment.getCurrency(), payment.getInquiryRefId(), payment.getStatus(), payment.getNote(), payment.getCreatedAt());
+        when(paymentRepository.existsById(guid)).thenReturn(Boolean.FALSE);
+
+        //when
+        assertThatThrownBy(() -> paymentService.updatePayment(guid, requestUpdatePaymentDto))
+        //then
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("Платеж не найден: " + guid);
+        verify(paymentRepository).existsById(guid);
+    }
+
+    @Test
+    void shouldSuccess_deletePayment() {
+        //given
+        when(paymentRepository.existsById(guid)).thenReturn(Boolean.TRUE);
+        doNothing().when(paymentRepository).deleteById(guid);
+
+        //when
+        paymentService.delete(guid);
+
+        //then
+        verify(paymentRepository).existsById(guid);
+        verify(paymentRepository).deleteById(guid);
+    }
+
+    @Test
+    void shouldNotFoundEntityException_deletePayment() {
+        //given
+        when(paymentRepository.existsById(guid)).thenReturn(Boolean.FALSE);
+
+        //when
+        assertThatThrownBy(() -> paymentService.delete(guid))
+        //then
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("Платеж не найден: " + guid);
+        verify(paymentRepository).existsById(guid);
+    }
+
+    @Test
+    void shouldSuccess_updateNotePayment() {
+        //given
+        RequestUpdateNotePaymentDto requestUpdateNotePaymentDto = new RequestUpdateNotePaymentDto(payment.getNote());
+        when(paymentRepository.existsById(guid)).thenReturn(Boolean.TRUE);
+        doNothing().when(paymentRepository).updateNotePayment(guid, requestUpdateNotePaymentDto.note());
+
+        //when
+        paymentService.updateNotePayment(guid, requestUpdateNotePaymentDto);
+
+        //then
+        verify(paymentRepository).existsById(guid);
+        verify(paymentRepository).updateNotePayment(guid, requestUpdateNotePaymentDto.note());
+    }
+
+    @Test
+    void shouldNotFoundEntityException_updateNotePayment() {
+        //given
+        RequestUpdateNotePaymentDto requestUpdateNotePaymentDto = new RequestUpdateNotePaymentDto(payment.getNote());
+        when(paymentRepository.existsById(guid)).thenReturn(Boolean.FALSE);
+
+        //when
+        assertThatThrownBy(() -> paymentService.updateNotePayment(guid, requestUpdateNotePaymentDto))
+        //then
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage("Платеж не найден: " + guid);
+        verify(paymentRepository).existsById(guid);
+        verify(paymentRepository, never()).updateNotePayment(guid, requestUpdateNotePaymentDto.note());
     }
 
     static PaymentStatus[] statusProvider() {
@@ -252,13 +375,13 @@ public class PaymentServiceTest {
         for (int i = 1; i <= countPayment; i++) {
             String currency = i % 2 == 0 ? "USD" : "RUB";
             PaymentStatus status = i % 2 == 0 ? PaymentStatus.APPROVED : PaymentStatus.PENDING;
-            paymentList.add(buildPaymentDto(BigDecimal.valueOf(i), currency, status, startDate.plus(i, ChronoUnit.DAYS)));
+            paymentList.add(buildPaymentDto(BigDecimal.valueOf(i), currency, status, String.valueOf(i), startDate.plus(i, ChronoUnit.DAYS)));
         }
         return paymentList;
     }
 
-    PaymentDto buildPaymentDto(BigDecimal amount, String currency, PaymentStatus status, Instant createdAt) {
-        return new PaymentDto(UUID.randomUUID(), amount, currency, status, createdAt);
+    PaymentDto buildPaymentDto(BigDecimal amount, String currency, PaymentStatus status, String note, Instant createdAt) {
+        return new PaymentDto(UUID.randomUUID(), amount, currency, status, note, createdAt);
     }
 
     static class CurrencyPaymentComparator implements Comparator<Payment> {

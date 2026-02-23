@@ -1,6 +1,8 @@
 package com.iprody.leonidm.paymentserviceapp.mapper;
 
 import com.iprody.leonidm.paymentserviceapp.dto.PaymentDto;
+import com.iprody.leonidm.paymentserviceapp.dto.RequestCreatePaymentDto;
+import com.iprody.leonidm.paymentserviceapp.dto.RequestUpdatePaymentDto;
 import com.iprody.leonidm.paymentserviceapp.persistence.entity.Payment;
 import org.mapstruct.Mapper;
 
@@ -14,4 +16,8 @@ public interface PaymentMapper {
     Payment toEntity(PaymentDto dto);
 
     List<PaymentDto> toDto(Collection<Payment> entities);
+
+    Payment toEntity(RequestCreatePaymentDto dto);
+
+    Payment toEntity(RequestUpdatePaymentDto dto);
 }
