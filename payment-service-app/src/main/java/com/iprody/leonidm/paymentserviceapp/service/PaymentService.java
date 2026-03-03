@@ -20,6 +20,7 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class PaymentService {
+    public static final String PAYMENT_NOT_FOUND = "Запрашиваемый ресурс не был найден в базе данных";
     private final PaymentRepository repository;
     private final PaymentMapper paymentMapper;
 
@@ -32,7 +33,7 @@ public class PaymentService {
 
     public PaymentDto findById(UUID guid) {
         final Payment payment = repository.findById(guid).orElseThrow(
-            () -> new EntityNotFoundException("Платеж не найден: " + guid)
+            () -> new EntityNotFoundException(PAYMENT_NOT_FOUND, "findById", guid)
         );
         return paymentMapper.toDto(payment);
     }
@@ -61,7 +62,7 @@ public class PaymentService {
     @Transactional
     public PaymentDto updatePayment(UUID guid, RequestUpdatePaymentDto dto) {
         if (!repository.existsById(guid)) {
-            throw new EntityNotFoundException("Платеж не найден: " + guid);
+            throw new EntityNotFoundException(PAYMENT_NOT_FOUND, "updatePayment", guid);
         }
         final Payment updated = paymentMapper.toEntity(dto);
         updated.setGuid(guid);
@@ -72,7 +73,7 @@ public class PaymentService {
     @Transactional
     public void delete(UUID guid) {
         if (!repository.existsById(guid)) {
-            throw new EntityNotFoundException("Платеж не найден: " + guid);
+            throw new EntityNotFoundException(PAYMENT_NOT_FOUND, "deletePayment", guid);
         }
         repository.deleteById(guid);
     }
@@ -80,7 +81,7 @@ public class PaymentService {
     @Transactional
     public void updateNotePayment(UUID guid, RequestUpdateNotePaymentDto dto) {
         if (!repository.existsById(guid)) {
-            throw new EntityNotFoundException("Платеж не найден: " + guid);
+            throw new EntityNotFoundException(PAYMENT_NOT_FOUND, "updateNotePayment", guid);
         }
         repository.updateNotePayment(guid, dto.note());
     }
