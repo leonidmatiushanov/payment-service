@@ -78,6 +78,7 @@ public class PaymentMapperTest {
                 new BigDecimal("999.99"),
                 "EUR",
                 PaymentStatus.PENDING,
+                "some note",
                 Instant.now()
         );
     }

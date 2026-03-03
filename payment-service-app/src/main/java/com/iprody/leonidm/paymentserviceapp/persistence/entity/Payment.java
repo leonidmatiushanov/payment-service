@@ -19,6 +19,7 @@ import java.util.UUID;
 public class Payment {
     @Id
     @Column(nullable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID guid;
 
     @Column(nullable = false, name = "inquiry_ref_id")
@@ -45,4 +46,16 @@ public class Payment {
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        final Instant now = Instant.now();
+        createdAt = now; // Автоустановка времени перед вставкой
+        updatedAt = now;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Instant.now(); // Only update the updatedAt field
+    }
 }
