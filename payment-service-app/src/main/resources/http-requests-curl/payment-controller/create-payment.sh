@@ -1,5 +1,8 @@
-curl -X POST http://localhost:8080/payments \
+TOKEN=
+curl \
+-X POST http://localhost:8080/payments \
 -H "Content-Type: application/json" \
+-H "Authorization: Bearer $TOKEN" \
 -d '{
 "inquiryRefId": "a1b2c3d4-e5f6-7890-abcd-1234567890ab",
 "amount": 42.50,

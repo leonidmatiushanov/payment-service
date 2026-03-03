@@ -4,6 +4,12 @@ server:
 spring:
   application:
     name: payment-service-app
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8085/realms/iprody-lms
+          jwk-set-uri: http://keycloak:8080/realms/iprody-lms/protocol/openid-connect/certs
   datasource: # объединяет в себе параметры подключения к БД
     url: jdbc:postgresql://localhost:5432/payment-db # URL подключения к БД
     username: admin # Имя пользователя
