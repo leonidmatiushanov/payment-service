@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,21 +22,25 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @GetMapping()
+    @PreAuthorize("hasAnyRole('admin', 'reader')")
     public List<PaymentDto> getPayments() {
         return paymentService.findAll();
     }
 
     @GetMapping("/{guid}")
+    @PreAuthorize("hasAnyRole('admin', 'reader')")
     public PaymentDto getPayment(@PathVariable UUID guid) {
         return paymentService.findById(guid);
     }
 
     @GetMapping("/filter")
+    @PreAuthorize("hasAnyRole('admin', 'reader')")
     public List<PaymentDto> getPaymentByFilter(@ModelAttribute PaymentFilter filter) {
         return paymentService.findByFilter(filter);
     }
 
     @GetMapping("/page-search")
+    @PreAuthorize("hasAnyRole('admin', 'reader')")
     public Page<PaymentDto> searchPagePayments(
         @ModelAttribute PaymentFilter filter,
         @RequestParam(defaultValue = "0") int page,
@@ -52,22 +57,26 @@ public class PaymentController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('admin')")
     public PaymentDto createPayment(@RequestBody RequestCreatePaymentDto dto) {
         return paymentService.createPayment(dto);
     }
 
     @PutMapping("/{guid}")
+    @PreAuthorize("hasRole('admin')")
     public PaymentDto updatePayment(@PathVariable UUID guid, @RequestBody RequestUpdatePaymentDto dto) {
         return paymentService.updatePayment(guid, dto);
     }
 
     @DeleteMapping("/{guid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('admin')")
     public void delete(@PathVariable UUID guid) {
         paymentService.delete(guid);
     }
 
     @PatchMapping("/{guid}")
+    @PreAuthorize("hasRole('admin')")
     public void updateNotePayment(@PathVariable UUID guid, @RequestBody RequestUpdateNotePaymentDto dto) {
         paymentService.updateNotePayment(guid, dto);
     }

@@ -3,6 +3,7 @@ package com.iprody.leonidm.paymentserviceapp.controller;
 import com.iprody.leonidm.paymentserviceapp.dto.ErrorDto;
 import com.iprody.leonidm.paymentserviceapp.exception.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,5 +28,11 @@ public class ExceptionHandlerController {
             ex.getEntityId(),
             ex.getOperation()
         );
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ErrorDto handleForbiddenException(AccessDeniedException e) {
+        return new ErrorDto(e.getMessage(), Instant.now());
     }
 }
