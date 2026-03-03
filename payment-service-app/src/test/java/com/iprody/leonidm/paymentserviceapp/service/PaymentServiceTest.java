@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import static com.iprody.leonidm.paymentserviceapp.service.PaymentService.PAYMENT_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -284,7 +285,7 @@ public class PaymentServiceTest {
         assertThatThrownBy(() -> paymentService.updatePayment(guid, requestUpdatePaymentDto))
         //then
             .isInstanceOf(EntityNotFoundException.class)
-            .hasMessage("Платеж не найден: " + guid);
+            .hasMessage(PAYMENT_NOT_FOUND);
         verify(paymentRepository).existsById(guid);
     }
 
@@ -311,7 +312,7 @@ public class PaymentServiceTest {
         assertThatThrownBy(() -> paymentService.delete(guid))
         //then
             .isInstanceOf(EntityNotFoundException.class)
-            .hasMessage("Платеж не найден: " + guid);
+            .hasMessage(PAYMENT_NOT_FOUND);
         verify(paymentRepository).existsById(guid);
     }
 
@@ -340,7 +341,7 @@ public class PaymentServiceTest {
         assertThatThrownBy(() -> paymentService.updateNotePayment(guid, requestUpdateNotePaymentDto))
         //then
             .isInstanceOf(EntityNotFoundException.class)
-            .hasMessage("Платеж не найден: " + guid);
+            .hasMessage(PAYMENT_NOT_FOUND);
         verify(paymentRepository).existsById(guid);
         verify(paymentRepository, never()).updateNotePayment(guid, requestUpdateNotePaymentDto.note());
     }
