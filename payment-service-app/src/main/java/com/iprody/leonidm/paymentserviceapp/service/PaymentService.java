@@ -21,6 +21,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PaymentService {
     public static final String PAYMENT_NOT_FOUND = "Запрашиваемый ресурс не был найден в базе данных";
+    public static final String FIND_BY_ID_PAYMENT_OPERATION = "findById";
+    public static final String UPDATE_PAYMENT_OPERATION = "updatePayment";
+    public static final String DELETE_PAYMENT_OPERATION = "deletePayment";
+    public static final String UPDATE_NOTE_PAYMENT_OPERATION = "updateNotePayment";
     private final PaymentRepository repository;
     private final PaymentMapper paymentMapper;
 
@@ -33,7 +37,7 @@ public class PaymentService {
 
     public PaymentDto findById(UUID guid) {
         final Payment payment = repository.findById(guid).orElseThrow(
-            () -> new EntityNotFoundException(PAYMENT_NOT_FOUND, "findById", guid)
+            () -> new EntityNotFoundException(PAYMENT_NOT_FOUND, FIND_BY_ID_PAYMENT_OPERATION, guid)
         );
         return paymentMapper.toDto(payment);
     }
@@ -62,7 +66,7 @@ public class PaymentService {
     @Transactional
     public PaymentDto updatePayment(UUID guid, RequestUpdatePaymentDto dto) {
         if (!repository.existsById(guid)) {
-            throw new EntityNotFoundException(PAYMENT_NOT_FOUND, "updatePayment", guid);
+            throw new EntityNotFoundException(PAYMENT_NOT_FOUND, UPDATE_PAYMENT_OPERATION, guid);
         }
         final Payment updated = paymentMapper.toEntity(dto);
         updated.setGuid(guid);
@@ -73,7 +77,7 @@ public class PaymentService {
     @Transactional
     public void delete(UUID guid) {
         if (!repository.existsById(guid)) {
-            throw new EntityNotFoundException(PAYMENT_NOT_FOUND, "deletePayment", guid);
+            throw new EntityNotFoundException(PAYMENT_NOT_FOUND, DELETE_PAYMENT_OPERATION, guid);
         }
         repository.deleteById(guid);
     }
@@ -81,7 +85,7 @@ public class PaymentService {
     @Transactional
     public void updateNotePayment(UUID guid, RequestUpdateNotePaymentDto dto) {
         if (!repository.existsById(guid)) {
-            throw new EntityNotFoundException(PAYMENT_NOT_FOUND, "updateNotePayment", guid);
+            throw new EntityNotFoundException(PAYMENT_NOT_FOUND, UPDATE_NOTE_PAYMENT_OPERATION, guid);
         }
         repository.updateNotePayment(guid, dto.note());
     }

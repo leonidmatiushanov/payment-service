@@ -16,9 +16,20 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/payments")
+@RequestMapping(PaymentController.BASE_REQUEST_MAPPING)
 @RequiredArgsConstructor
 public class PaymentController {
+    public static final String BASE_REQUEST_MAPPING = "/payments";
+    public static final String GUID_PATH = "/{guid}";
+    public static final String GET_PAYMENTS_API = BASE_REQUEST_MAPPING;
+    public static final String GET_PAYMENT_API = BASE_REQUEST_MAPPING + GUID_PATH;
+    public static final String GET_PAYMENTS_BY_FILTER_API = BASE_REQUEST_MAPPING + "/filter";
+    public static final String GET_PAGE_PAYMENTS_BY_FILTER_API = BASE_REQUEST_MAPPING + "/page-search";
+    public static final String POST_CREATE_PAYMENT_API = BASE_REQUEST_MAPPING;
+    public static final String PUT_UPDATE_PAYMENT_API = BASE_REQUEST_MAPPING + GUID_PATH;
+    public static final String DELETE_DELETE_PAYMENT_API = BASE_REQUEST_MAPPING + GUID_PATH;
+    public static final String PATCH_UPDATE_NOTE_PAYMENT_API = BASE_REQUEST_MAPPING + GUID_PATH;
+            ;
     private final PaymentService paymentService;
 
     @GetMapping()
