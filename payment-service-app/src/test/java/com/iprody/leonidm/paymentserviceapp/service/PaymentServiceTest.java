@@ -1,8 +1,11 @@
 package com.iprody.leonidm.paymentserviceapp.service;
 
+import com.iprody.leonidm.paymentserviceapp.async.AsyncSender;
+import com.iprody.leonidm.paymentserviceapp.async.XPaymentAdapterRequestMessage;
 import com.iprody.leonidm.paymentserviceapp.dto.*;
 import com.iprody.leonidm.paymentserviceapp.exception.EntityNotFoundException;
 import com.iprody.leonidm.paymentserviceapp.mapper.PaymentMapper;
+import com.iprody.leonidm.paymentserviceapp.mapper.XPaymentAdapterMapper;
 import com.iprody.leonidm.paymentserviceapp.persistence.entity.Payment;
 import com.iprody.leonidm.paymentserviceapp.persistence.entity.PaymentStatus;
 import com.iprody.leonidm.paymentserviceapp.persistence.repository.PaymentRepository;
@@ -39,6 +42,10 @@ public class PaymentServiceTest {
     private PaymentRepository paymentRepository;
     @Mock
     private PaymentMapper paymentMapper;
+    @Mock
+    private XPaymentAdapterMapper xPaymentAdapterMapper;
+    @Mock
+    private AsyncSender<XPaymentAdapterRequestMessage> sender;
     @InjectMocks
     private PaymentService paymentService;
 
@@ -234,9 +241,11 @@ public class PaymentServiceTest {
     void shouldSuccess_createPayment() {
         //given
         RequestCreatePaymentDto requestCreatePaymentDto = new RequestCreatePaymentDto(payment.getAmount(), payment.getInquiryRefId(), payment.getCurrency(), payment.getStatus());
+        XPaymentAdapterRequestMessage xPaymentAdapterRequestMessage = new XPaymentAdapterRequestMessage();
         when(paymentRepository.save(payment)).thenReturn(payment);
         when(paymentMapper.toEntity(any(RequestCreatePaymentDto.class))).thenReturn(payment);
         when(paymentMapper.toDto(any(Payment.class))).thenReturn(paymentDto);
+        when(xPaymentAdapterMapper.toXPaymentAdapterRequestMessage(any(Payment.class))).thenReturn(xPaymentAdapterRequestMessage);
 
         //when
         PaymentDto result = paymentService.createPayment(requestCreatePaymentDto);
@@ -248,6 +257,8 @@ public class PaymentServiceTest {
         verify(paymentRepository).save(payment);
         verify(paymentMapper).toEntity(any(RequestCreatePaymentDto.class));
         verify(paymentMapper).toDto(payment);
+        verify(xPaymentAdapterMapper).toXPaymentAdapterRequestMessage(payment);
+        verify(sender).send(xPaymentAdapterRequestMessage);
     }
 
     @Test
