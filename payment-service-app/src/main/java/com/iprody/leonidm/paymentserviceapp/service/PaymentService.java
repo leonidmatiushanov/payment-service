@@ -1,8 +1,11 @@
 package com.iprody.leonidm.paymentserviceapp.service;
 
+import com.iprody.leonidm.paymentserviceapp.async.AsyncSender;
+import com.iprody.leonidm.paymentserviceapp.async.XPaymentAdapterRequestMessage;
 import com.iprody.leonidm.paymentserviceapp.dto.*;
 import com.iprody.leonidm.paymentserviceapp.exception.EntityNotFoundException;
 import com.iprody.leonidm.paymentserviceapp.mapper.PaymentMapper;
+import com.iprody.leonidm.paymentserviceapp.mapper.XPaymentAdapterMapper;
 import com.iprody.leonidm.paymentserviceapp.persistence.entity.Payment;
 import com.iprody.leonidm.paymentserviceapp.persistence.repository.PaymentRepository;
 import com.iprody.leonidm.paymentserviceapp.persistence.specifications.PaymentFilterFactory;
@@ -27,6 +30,8 @@ public class PaymentService {
     public static final String UPDATE_NOTE_PAYMENT_OPERATION = "updateNotePayment";
     private final PaymentRepository repository;
     private final PaymentMapper paymentMapper;
+    private final XPaymentAdapterMapper xPaymentAdapterMapper;
+    private final AsyncSender<XPaymentAdapterRequestMessage> sender;
 
     public List<PaymentDto> findAll() {
         final List<Payment> payments = repository.findAll();
@@ -60,7 +65,13 @@ public class PaymentService {
     public PaymentDto createPayment(RequestCreatePaymentDto dto) {
         final Payment entity = paymentMapper.toEntity(dto);
         final Payment savedEntity = repository.save(entity);
-        return paymentMapper.toDto(savedEntity);
+        final PaymentDto savedDto = paymentMapper.toDto(savedEntity);
+
+        // Добавляем отправку сообщения
+        final var requestMessage = xPaymentAdapterMapper.toXPaymentAdapterRequestMessage(entity);
+        sender.send(requestMessage);
+
+        return savedDto;
     }
 
     @Transactional

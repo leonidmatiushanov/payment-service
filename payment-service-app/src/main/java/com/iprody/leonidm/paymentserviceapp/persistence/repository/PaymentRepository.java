@@ -17,4 +17,8 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID>, JpaSpec
     @Modifying
     @Query("update Payment p SET p.note = :note WHERE p.guid = :guid")
     void updateNotePayment(@RequestParam UUID guid, @RequestParam("note") String note);
+
+    @Modifying
+    @Query("update Payment p SET p.transactionRefId = :transactionRefId WHERE p.guid = :guid")
+    void updateTransactionRefIdByGuid(@RequestParam UUID transactionRefId, @RequestParam UUID guid);
 }
