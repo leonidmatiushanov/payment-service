@@ -1,6 +1,8 @@
 package com.iprody.leonidm.paymentserviceapp.controller;
 
 import com.iprody.leonidm.paymentserviceapp.AbstractPostgresIntegrationTest;
+import com.iprody.leonidm.paymentserviceapp.async.AsyncSender;
+import com.iprody.leonidm.paymentserviceapp.async.XPaymentAdapterRequestMessage;
 import com.iprody.leonidm.paymentserviceapp.dto.PaymentDto;
 import com.iprody.leonidm.paymentserviceapp.dto.RequestCreatePaymentDto;
 import com.iprody.leonidm.paymentserviceapp.dto.RequestUpdateNotePaymentDto;
@@ -10,11 +12,15 @@ import com.iprody.leonidm.paymentserviceapp.persistence.entity.PaymentStatus;
 import com.iprody.leonidm.paymentserviceapp.persistence.repository.PaymentRepository;
 import com.iprody.leonidm.paymentserviceapp.util.TestJwtFactory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
@@ -32,6 +38,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
+@TestPropertySource("classpath:application-test.yml")
+@ActiveProfiles("test")
 public class PaymentControllerIntegrationTest extends AbstractPostgresIntegrationTest {
     private static final String INVALID_ROLE = "user";
     private static final String TEST_USERNAME = "test-user";
@@ -41,6 +49,8 @@ public class PaymentControllerIntegrationTest extends AbstractPostgresIntegratio
     private PaymentRepository paymentRepository;
     @Autowired
     private ObjectMapper objectMapper;
+    @MockitoBean
+    private AsyncSender<XPaymentAdapterRequestMessage> sender;
 
     static String[] accessRoleProvider() {
         return new String[]{READER_ROLE, ADMIN_ROLE};
