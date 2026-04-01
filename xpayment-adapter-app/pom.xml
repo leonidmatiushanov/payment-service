@@ -60,6 +60,11 @@
 			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.openapitools</groupId>
+			<artifactId>jackson-databind-nullable</artifactId>
+			<version>0.2.7</version>
+		</dependency>
 		<!--test-->
 
 		<dependency>
@@ -105,6 +110,33 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>7.15.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>xpayment-adapter-app/xpayment-api.openapi.yml</inputSpec>
+							<generatorName>java</generatorName>
+							<library>resttemplate</library>
+
+							<output>${project.build.directory}/generated-sources/openapi</output>
+							<apiPackage>com.iprody.xpayment.app.api.client</apiPackage>
+							<modelPackage>com.iprody.xpayment.app.api.model</modelPackage>
+
+							<configOptions>
+								<useTags>true</useTags>
+								<useJakartaEe>true</useJakartaEe>
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
