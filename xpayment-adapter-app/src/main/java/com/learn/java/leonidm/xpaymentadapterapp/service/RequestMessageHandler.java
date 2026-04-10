@@ -17,14 +17,17 @@ import java.time.Instant;
 public class RequestMessageHandler implements MessageHandler<XPaymentAdapterRequestMessage> {
     private final AsyncSender<XPaymentAdapterResponseMessage> asyncSender;
     private final XPaymentProviderGateway xPaymentProviderGateway;
+    private final PaymentStateCheckRegistrar paymentStateCheckRegistrar;
 
     @Autowired
     public RequestMessageHandler(
             AsyncSender<XPaymentAdapterResponseMessage> asyncSender,
-            XPaymentProviderGateway xPaymentProviderGateway, CreateChargeMapper createChargeMapper
+            XPaymentProviderGateway xPaymentProviderGateway,
+            PaymentStateCheckRegistrar paymentStateCheckRegistrar
     ) {
         this.asyncSender = asyncSender;
         this.xPaymentProviderGateway = xPaymentProviderGateway;
+        this.paymentStateCheckRegistrar = paymentStateCheckRegistrar;
     }
 
     @Override
@@ -56,6 +59,13 @@ public class RequestMessageHandler implements MessageHandler<XPaymentAdapterRequ
             responseMessage.setOccurredAt(Instant.now());
 
             asyncSender.send(responseMessage);
+
+            paymentStateCheckRegistrar.register(
+                    chargeResponse.id(),
+                    chargeResponse.order(),
+                    chargeResponse.amount(),
+                    chargeResponse.currency()
+            );
         } catch (RestClientException ex) {
             log.error("Error in time of sending payment request with paymentGuid - {}", message.getPaymentGuid(), ex);
 
