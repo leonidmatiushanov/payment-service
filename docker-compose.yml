@@ -104,6 +104,22 @@ services:
       LOGGING_LEVEL_COM_IPRODY: DEBUG
       XPAYMENT_PROCESSING_DELAY_MS: 10000
 
+  rabbitmq:
+    image: rabbitmq:4.1.4-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # для подключения клиентов к брокеру
+      - "15672:15672" # для доступа к админке
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbitmq_delayed_message_exchange-4.1.0.ez:/opt/rabbitmq/plugins/rabbitmq_delayed_message_exchange-4.1.0.ez
+      # делаем доступным в контейнере файл плагина
+    command: bash -c "rabbitmq-plugins enable --offline rabbitmq_delayed_message_exchange && rabbitmq-server"
+    restart: unless-stopped
+
 volumes:
   pgdata:
   kafka_data:

@@ -69,6 +69,11 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+
 		<!--test-->
 
 		<dependency>
@@ -138,7 +143,8 @@
 							<output>${project.build.directory}/generated-sources/openapi</output>
 							<apiPackage>com.iprody.xpayment.app.api.client</apiPackage>
 							<modelPackage>com.iprody.xpayment.app.api.model</modelPackage>
-
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
 							<configOptions>
 								<useTags>true</useTags>
 								<useJakartaEe>true</useJakartaEe>
