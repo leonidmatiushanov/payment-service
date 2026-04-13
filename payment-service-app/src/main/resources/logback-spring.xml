@@ -1,16 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <property name="LOG_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level ${PID:- } --- [%thread] %-40.40logger{50} : %msg%n" />
-    <!-- STDOUT (консольный апендер) -->
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level ${PID:- } --- [%thread] %-40.40logger{50} [%X{traceId}:%X{spanId}] : %msg%n" />
+
+    <!-- STDOUT (консольный аппендер в JSON) -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <!-- стандартные поля -->
+                <timestamp/>
+                <logLevel/>
+                <threadName/>
+                <loggerName/>
+
+                <!-- Явно добавим traceId и spanId -->
+                <pattern>
+                    <pattern>
+                        {
+                        "traceId":"%X{traceId:-}",
+                        "spanId":"%X{spanId:-}",
+                        "message":"%message",
+                        "app":"${springAppName:-payment-service-app}"
+                        }
+                    </pattern>
+                </pattern>
+
+                <!-- stacktrace как массив строк -->
+                <stackTrace/>
+                <mdc/>
+            </providers>
         </encoder>
     </appender>
+
     <!-- FILE с ежедневной ротацией -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/app.log</file>
+
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- Архив с указанием даты -->
             <fileNamePattern>logs/app-%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -19,13 +44,16 @@
             <!-- Максимальный размер хранилища всех логов (необязательно) -->
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
+
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
     </appender>
+
     <!-- Корневой логгер (root) -->
     <root level="${LOG_LEVEL}">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </root>
+
 </configuration>

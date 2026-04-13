@@ -48,6 +48,10 @@ spring:
     listener:
       ack-mode: manual
       concurrency: 1
+      observation-enabled: true
+    template:
+      observation-enabled: true
+
 app:
   kafka:
     topics:
@@ -69,3 +73,11 @@ management:
     web:
       exposure:
         include: health,info,metrics,env,loggers
+  tracing:
+    sampling:
+      probability: 1.0 # 100% для отладки; в продакшн должен быть меньше
+    propagation:
+      type: w3c,b3 # чтобы понимать и traceparent, и b3
+    export:
+      zipkin:
+        endpoint: http://zipkin:9411/api/v2/spans

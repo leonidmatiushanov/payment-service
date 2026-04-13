@@ -28,12 +28,26 @@ spring:
     listener:
       ack-mode: manual
       concurrency: 1
+      observation-enabled: true
+
+    template:
+      observation-enabled: true
 
   rabbitmq:
     host: localhost
     port: 5672
     username: admin
     password: admin
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0 # 100% для отладки; в продакшн долженбыть меньше
+    propagation:
+      type: w3c,b3 # чтобы понимать и traceparent, и b3
+    zipkin:
+      tracing:
+        endpoint: http://zipkin:9411/api/v2/spans
 
 app:
   kafka:
