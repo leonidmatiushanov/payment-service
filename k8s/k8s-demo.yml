@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment # имя Deployment
+spec:
+  replicas: 3 # количество реплик (Pod’ов)
+  selector: # селектор для идентификации Pod’ов
+    matchLabels:
+      app: nginx # выбираем Pod’ы с меткой app=nginx
+  template: # шаблон для создания Pod’ов
+    metadata:
+      labels:
+        app: nginx # метка, чтобы Pod соответствовал селектору
+    spec: # спецификация Pod’а
+      containers: # список контейнеров внутри Pod’а
+        - name: nginx # имя контейнера
+          image: nginx:1.25 # образ контейнера (nginx версии 1.25)
+          ports:
+            - containerPort: 80 # порт, который будет слушать контейнер (внутри Pod)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx # выбираем Pod’ы с меткой app=nginx
+  ports: # список портов
+    - protocol: TCP # протокол (TCP по умолчанию)
+      port: 80 # порт Service
+      targetPort: 80 # порт внутри Pod’а
+  type: ClusterIP # тип Service:
+
+  # ClusterIP (по умолчанию) -- доступ только изнутри кластера
+  
+  # NodePort -- открывает порт на нодах для внешнего доступа
+  
+  # LoadBalancer -- для облачных провайдеров, создаёт балансировщик

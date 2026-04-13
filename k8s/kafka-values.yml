@@ -1,0 +1,9 @@
+kraft:
+  enabled: true # режим KRaft (по умолчанию true в новых релизах)
+controller:
+  replicaCount: 1 # один контроллер для стенда
+broker:
+  replicaCount: 1 # один брокер
+listeners:
+  client:
+    protocol: PLAINTEXT # для простоты: без TLS/SASL на учебном стенде
