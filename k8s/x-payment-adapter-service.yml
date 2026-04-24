@@ -15,8 +15,34 @@ spec:
       containers:
         - name: x-payment-adapter-app
           image: x-payment-adapter-app:latest
+          imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8080
+            - name: http # ДОБАВИТЬ ИМЯ К ПОРТУ
+              containerPort: 8080 # порт внутри пода
+            - name: mgmt
+              containerPort: 8081
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness # URL проверки старта
+              port: mgmt # обращение к mgmt-порту
+            periodSeconds: 5 # интервал между проверками
+            failureThreshold: 60 # сколько подряд неудач допускается (5*60=~5 мин на старт)
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness # жив ли контейнер
+              port: mgmt
+            initialDelaySeconds: 10 # задержка перед первой проверкой
+            periodSeconds: 10 # интервал между проверками
+            timeoutSeconds: 2 # таймаут ожидания ответа
+            failureThreshold: 3 # после 3 неудач контейнер перезапустится
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness # готов ли Pod принимать трафик
+              port: mgmt
+            initialDelaySeconds: 5 # задержка перед первой проверкой
+            periodSeconds: 10 # интервал между проверками
+            timeoutSeconds: 2 # таймаут ожидания ответа
+            failureThreshold: 3 # после 3 неудач Pod исключается из сервиса
           env:
           - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
             value: "my-kafka.kafka.svc.cluster.local:9093"

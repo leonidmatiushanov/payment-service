@@ -48,6 +48,16 @@ management:
     zipkin:
       tracing:
         endpoint: http://zipkin:9411/api/v2/spans
+    server:
+      port: 8081 # отдельный порт для Actuator
+    endpoints:
+      web:
+        exposure:
+          include: health # делаем health доступным через HTTP
+    endpoint:
+      health:
+        probes:
+          enabled: true # активируем разделение на liveness и readiness
 
 app:
   kafka:

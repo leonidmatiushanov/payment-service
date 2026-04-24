@@ -1,0 +1,21 @@
+config:
+  snippets:
+    pipelineStages:
+      # 1) снять внешний Docker JSON: {"log": "...", "stream": "...", "time": "..." }
+      - docker: { }
+      - json:
+        expressions:
+          level: level
+          logger: logger
+          traceId: traceId
+          spanId: spanId
+          message: message
+      - labels:
+          level:
+          logger:
+          traceId:
+          spanId:
+      - output:
+        source: message
+clients:
+  - url: http://loki.observability.svc.cluster.local:3100/loki/api/v1/push

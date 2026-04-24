@@ -19,7 +19,32 @@ spec:
           image: payment-service:latest # докер образ
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8080 # порт внутри Pod’а
+            - name: http # ДОБАВИТЬ ИМЯ К ПОРТУ
+              containerPort: 8080 # порт внутри пода
+            - name: mgmt
+              containerPort: 8081
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness # URL проверки старта
+              port: mgmt # обращение к mgmt-порту
+            periodSeconds: 5 # интервал между проверками
+            failureThreshold: 60 # сколько подряд неудач допускается (5*60=~5 мин на старт)
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness # жив ли контейнер
+              port: mgmt
+            initialDelaySeconds: 10 # задержка перед первой проверкой
+            periodSeconds: 10 # интервал между проверками
+            timeoutSeconds: 2 # таймаут ожидания ответа
+            failureThreshold: 3 # после 3 неудач контейнер перезапустится
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness # готов ли Pod принимать трафик
+              port: mgmt
+            initialDelaySeconds: 5 # задержка перед первой проверкой
+            periodSeconds: 10 # интервал между проверками
+            timeoutSeconds: 2 # таймаут ожидания ответа
+            failureThreshold: 3 # после 3 неудач Pod исключается из сервиса
           env: # переменные окружения
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://my-pg-postgresql.db.svc.cluster.local:5432/payment-db
