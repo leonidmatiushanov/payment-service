@@ -123,3 +123,4 @@ services:
 volumes:
   pgdata:
   kafka_data:
+  rabbitmq_data:
